@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <video class="video-background" autoplay muted loop playsinline>
+    <source src="15674169_3840_2160_30fps.mp4" type="video/mp4">
+</video>
+    <header>
+    <h1><span>Pomodoro</span><span>Timer</span></h1>
+    </header>
+    <main>
+        <div class="utility-controls">
+            <button id="wallpaper-button" type="button" aria-label="Change wallpaper" title="Change wallpaper">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                    <circle cx="8.5" cy="9" r="1.5"></circle>
+                    <path d="m21 15-5-5L5 20"></path>
+                </svg>
+            </button>
+            <button id="sound-button" type="button" aria-label="Change sound" title="Change sound">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                    <path d="M19 5a10 10 0 0 1 0 14"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="menu-screen">
+            <div class="preset-picker">
+                <span id="preset-label" class="visually-hidden">Study and break duration</span>
+                <button
+                    id="session-preset"
+                    type="button"
+                    aria-labelledby="preset-label selected-preset"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="preset-options"
+                    data-value="50:10"
+                >
+                    <span id="selected-preset">50:10</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+                <div id="preset-options" role="listbox" aria-label="Study and break duration options" hidden>
+                    <div role="option" tabindex="-1" aria-selected="false" data-value="25:5">25:5</div>
+                    <div role="option" tabindex="-1" aria-selected="false" data-value="30:10">30:10</div>
+                    <div role="option" tabindex="-1" aria-selected="false" data-value="40:20">40:20</div>
+                    <div role="option" tabindex="-1" aria-selected="true" data-value="50:10">50:10</div>
+                </div>
+            </div>
+            <button id="startButton">Start</button>
+        </div>
+        <div id="timer-screen" hidden>
+            <p id="phase-label" aria-live="polite">Study time</p>
+            <div id="timerDisplay" role="timer" aria-label="Time remaining">50:00</div>
+            <div class="timer-actions">
+                <button id="pauseButton">Pause</button>
+                <button id="resetButton">Reset</button>
+            </div>
+        </div>
+    </main>
+    <dialog id="wallpaper-dialog" class="settings-dialog" aria-labelledby="wallpaper-dialog-title">
+        <div class="dialog-heading">
+            <h2 id="wallpaper-dialog-title">Choose a wallpaper</h2>
+            <button type="button" class="dialog-close" data-close-dialog aria-label="Close wallpaper options">&times;</button>
+        </div>
+        <div class="wallpaper-options" role="radiogroup" aria-label="Wallpaper">
+            <label class="wallpaper-option">
+                <input type="radio" name="wallpaper" value="video" checked>
+                <span class="wallpaper-preview wallpaper-preview-video" aria-hidden="true"></span>
+                <span>Moving video</span>
+            </label>
+            <div class="wallpaper-option">
+                <input id="solid-wallpaper-choice" type="radio" name="wallpaper" value="solid">
+                <span id="solid-wallpaper-preview" class="wallpaper-preview wallpaper-preview-solid" aria-hidden="true"></span>
+                <span class="wallpaper-color-label">
+                    <label for="solid-wallpaper-choice">Solid color</label>
+                    <input id="wallpaper-color" type="color" value="#18202c" aria-label="Choose solid wallpaper color">
+                </span>
+            </div>
+            <div class="wallpaper-option wallpaper-import-option">
+                <span id="imported-wallpaper-preview" class="wallpaper-preview wallpaper-preview-import" aria-hidden="true"></span>
+                <label for="wallpaper-file">Import your own</label>
+                <input id="wallpaper-file" type="file" accept="image/*,video/mp4,video/webm" aria-describedby="wallpaper-file-help">
+                <span id="wallpaper-file-help" class="wallpaper-file-help">Choose an image or video from your device.</span>
+            </div>
+        </div>
+        <p id="wallpaper-status" class="dialog-status" role="status" aria-live="polite"></p>
+    </dialog>
+    <dialog id="sound-dialog" class="settings-dialog" aria-labelledby="sound-dialog-title">
+        <div class="dialog-heading">
+            <h2 id="sound-dialog-title">Ambient sounds</h2>
+            <button type="button" class="dialog-close" data-close-dialog aria-label="Close sound controls">&times;</button>
+        </div>
+        <p class="dialog-description">Adjust each slider to mix in a sound.</p>
+        <div class="sound-mixer">
+            <label class="sound-control" for="rain-volume">
+                <span>Rain <output id="rain-volume-value" for="rain-volume">0%</output></span>
+                <input id="rain-volume" type="range" min="0" max="100" value="0">
+            </label>
+            <label class="sound-control" for="wind-volume">
+                <span>Wind <output id="wind-volume-value" for="wind-volume">0%</output></span>
+                <input id="wind-volume" type="range" min="0" max="100" value="0">
+            </label>
+            <label class="sound-control" for="noise-volume">
+                <span>Soft noise <output id="noise-volume-value" for="noise-volume">0%</output></span>
+                <input id="noise-volume" type="range" min="0" max="100" value="0">
+            </label>
+        </div>
+        <p id="audio-status" class="dialog-status" role="status" aria-live="polite">Sounds are off.</p>
+    </dialog>
+    <footer>
+        <p>&copy; 2026 Pomodoro Timer. All rights reserved.</p>
+    </footer>
+    <script src="pomodoro_timer_javascript.js"></script>
+</body>
+</html>

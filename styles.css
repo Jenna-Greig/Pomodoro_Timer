@@ -1,0 +1,533 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #000;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    padding: 3rem clamp(1.5rem, 6vw, 6rem) 1rem;
+    column-gap: clamp(2rem, 8vw, 8rem);
+}
+
+body.solid-wallpaper {
+    background-color: var(--solid-wallpaper-color, #18202c);
+}
+
+body.imported-image-wallpaper {
+    background-color: #000;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+* {
+    box-sizing: inherit;
+}
+
+h1 {
+    display: grid;
+    gap: 0.08em;
+    color: #fff;
+    text-align: left;
+    margin: 0;
+    opacity: 0.65;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+}
+
+header {
+    width: fit-content;
+    max-width: 100%;
+    justify-self: center;
+    margin: 0;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
+    border: 0.75px solid transparent;
+    border-radius: 1rem;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.389), rgba(255, 255, 255, 0.389)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0.08) 65%,
+            rgba(255, 255, 255, 0.65)
+        ) border-box;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    mix-blend-mode: difference;
+}
+
+main {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 1.25rem;
+    color: #fff;
+    text-align: center;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    mix-blend-mode: difference;
+}
+
+.utility-controls {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.utility-controls button {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    padding: 0.75rem;
+}
+
+.utility-controls svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+}
+
+#menu-screen,
+#timer-screen:not([hidden]) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#menu-screen {
+    flex-direction: column;
+}
+
+#timer-screen:not([hidden]) {
+    flex-direction: column;
+}
+
+.timer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+#menu-screen[hidden],
+#timer-screen[hidden] {
+    display: none;
+}
+
+#phase-label {
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-weight: 400;
+}
+
+.preset-picker {
+    position: relative;
+    max-width: 100%;
+}
+
+#session-preset {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    color: #fff;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0.08) 65%,
+            rgba(255, 255, 255, 0.65)
+        ) border-box;
+    font: inherit;
+    font-size: clamp(5rem, 12vw, 9rem);
+    line-height: 1;
+    text-align: left;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#session-preset svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+}
+
+#preset-options {
+    position: absolute;
+    z-index: 2;
+    top: calc(100% + 0.75rem);
+    left: 50%;
+    display: grid;
+    width: max-content;
+    min-width: min(100%, 12rem);
+    max-width: calc(100vw - 3rem);
+    padding: 0.4rem;
+    gap: 0.2rem;
+    transform: translateX(-50%);
+    border: 1px solid transparent;
+    border-radius: 0.85rem;
+    color: #fff;
+    background:
+        linear-gradient(rgba(24, 24, 30, 0.82), rgba(24, 24, 30, 0.82)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0.08) 65%,
+            rgba(255, 255, 255, 0.65)
+        ) border-box;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    font-size: 1.25rem;
+    line-height: 1.2;
+}
+
+#preset-options[hidden] {
+    display: none;
+}
+
+#preset-options [role="option"] {
+    padding: 0.55rem 1rem;
+    border-radius: 0.55rem;
+    cursor: pointer;
+}
+
+#preset-options [role="option"]:hover,
+#preset-options [role="option"]:focus,
+#preset-options [role="option"][aria-selected="true"] {
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+}
+
+.settings-dialog {
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    overflow: auto;
+    padding: 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 1.25rem;
+    color: #fff;
+    background:
+        linear-gradient(rgba(28, 30, 38, 0.88), rgba(28, 30, 38, 0.88)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0.08) 65%,
+            rgba(255, 255, 255, 0.65)
+        ) border-box;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.settings-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.dialog-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dialog-heading h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 400;
+}
+
+.dialog-close {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.dialog-description,
+.dialog-status {
+    margin: 1rem 0;
+    font-size: 1rem;
+}
+
+.wallpaper-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.wallpaper-option {
+    position: relative;
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.65rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    color: inherit;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.65),
+            rgba(255, 255, 255, 0.12) 45%,
+            rgba(255, 255, 255, 0.4)
+        ) border-box;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.wallpaper-import-option {
+    align-content: start;
+    text-align: left;
+}
+
+.wallpaper-import-option > label {
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.wallpaper-import-option input[type="file"] {
+    width: 100%;
+    max-width: 100%;
+    color: rgba(255, 255, 255, 0.9);
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.wallpaper-file-help {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    opacity: 0.8;
+}
+
+.wallpaper-option:has(input[type="radio"]:checked),
+.wallpaper-import-option.is-selected {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+}
+
+.wallpaper-option input[type="radio"] {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0;
+    accent-color: #fff;
+}
+
+.wallpaper-option:focus-within {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+}
+
+.wallpaper-preview {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.5rem;
+}
+
+.wallpaper-preview-video {
+    background:
+        radial-gradient(ellipse at 70% 35%, rgba(255, 255, 255, 0.75), transparent 14%),
+        linear-gradient(145deg, #173a49, #63898b 48%, #1d2e3a);
+}
+
+.wallpaper-preview-solid {
+    background: var(--solid-wallpaper-color, #18202c);
+}
+
+.wallpaper-preview-import {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent),
+        linear-gradient(145deg, #273746, #121923);
+    background-position: center;
+    background-size: cover;
+}
+
+.wallpaper-color-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#wallpaper-color {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+
+#wallpaper-color::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+#wallpaper-color::-webkit-color-swatch {
+    border: 0;
+    border-radius: 50%;
+}
+
+#wallpaper-color::-moz-color-swatch {
+    border: 0;
+    border-radius: 50%;
+}
+
+.sound-mixer {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.sound-control {
+    display: grid;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.sound-control > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.sound-control output {
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.sound-control input {
+    width: 100%;
+    accent-color: #dce8f2;
+}
+
+.dialog-status {
+    min-height: 1.5em;
+    margin-bottom: 0;
+    opacity: 0.8;
+}
+
+#timerDisplay {
+    font-size: clamp(5rem, 12vw, 9rem);
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+button {
+    padding: 0.7rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    color: #fff;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22)) padding-box,
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0.08) 65%,
+            rgba(255, 255, 255, 0.65)
+        ) border-box;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font: inherit;
+    font-size: 1.15rem;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+footer {
+    grid-column: 1 / -1;
+    justify-self: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+}
+
+.video-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+body > :not(.video-background) {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 700px) {
+    body {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr auto;
+        row-gap: 2rem;
+        padding: 5rem 1.5rem 1rem;
+    }
+
+    header {
+        justify-self: center;
+    }
+
+    main {
+        justify-self: center;
+    }
+}
