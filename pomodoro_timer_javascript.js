@@ -1,4 +1,5 @@
 const BREAK_WARNING_DURATION = 5 * 1000;
+const TRANSITION_BELL_SPACING_SECONDS = 1.25;
 
 const menuScreen = document.getElementById("menu-screen");
 const timerScreen = document.getElementById("timer-screen");
@@ -63,11 +64,19 @@ let intervalId = null;
 let audioContext = null;
 let importedWallpaperUrl = null;
 const ambientGains = new Map();
+const transitionBellTones = new Map();
+let transitionBellRequest = 0;
 
 function readPreset() {
-    const [studyMinutes, breakMinutes] = sessionPreset.dataset.value.split(":").map(Number);
-    studyDuration = studyMinutes * 60 * 1000;
-    breakDuration = breakMinutes * 60 * 1000;
+    const [studyValue, breakValue] = sessionPreset.dataset.value.split(":");
+    const toMilliseconds = (value) => {
+        const duration = Number.parseFloat(value);
+        const unit = value.endsWith("s") ? 1000 : 60 * 1000;
+        return duration * unit;
+    };
+
+    studyDuration = toMilliseconds(studyValue);
+    breakDuration = toMilliseconds(breakValue);
 }
 
 function setPreset(value) {
@@ -77,7 +86,7 @@ function setPreset(value) {
     }
 
     sessionPreset.dataset.value = value;
-    selectedPresetLabel.textContent = value;
+    selectedPresetLabel.textContent = selectedOption.textContent.trim();
 
     presetOptionItems.forEach((option) => {
         option.setAttribute("aria-selected", String(option === selectedOption));
@@ -184,6 +193,77 @@ function updateAmbientVolume(name, value) {
     if (gain && audioContext) {
         gain.gain.setTargetAtTime((Number(value) / 100) * 0.18, audioContext.currentTime, 0.04);
     }
+}
+
+function playTransitionBell(durationMilliseconds = BREAK_WARNING_DURATION) {
+    if (!audioContext) {
+        return;
+    }
+
+    const context = audioContext;
+    const request = ++transitionBellRequest;
+    const scheduleBell = () => {
+        if (request !== transitionBellRequest || context.state !== "running") {
+            return;
+        }
+
+        const transitionStart = context.currentTime;
+        const chimeSpacing = TRANSITION_BELL_SPACING_SECONDS;
+        const transitionEnd = transitionStart + durationMilliseconds / 1000;
+
+        [0, 1, 2].forEach((chimeIndex) => {
+            const chimeStart = transitionStart + chimeIndex * chimeSpacing;
+            const chimeDuration = Math.min(0.8, transitionEnd - chimeStart);
+            if (chimeDuration <= 0.025) {
+                return;
+            }
+
+            [
+                { frequency: 1100, volume: 0.09 },
+                { frequency: 1650, volume: 0.04 },
+            ].forEach(({ frequency, volume }) => {
+                const oscillator = context.createOscillator();
+                const gain = context.createGain();
+
+                oscillator.type = "sine";
+                oscillator.frequency.value = frequency;
+                gain.gain.setValueAtTime(0.0001, chimeStart);
+                gain.gain.exponentialRampToValueAtTime(volume, chimeStart + 0.025);
+                gain.gain.exponentialRampToValueAtTime(0.0001, chimeStart + chimeDuration);
+
+                oscillator.connect(gain);
+                gain.connect(context.destination);
+                transitionBellTones.set(oscillator, gain);
+                oscillator.addEventListener("ended", () => transitionBellTones.delete(oscillator), { once: true });
+                oscillator.start(chimeStart);
+                oscillator.stop(chimeStart + chimeDuration + 0.05);
+            });
+        });
+    };
+
+    if (context.state === "running") {
+        scheduleBell();
+    } else {
+        context.resume().then(scheduleBell).catch((error) => {
+            console.error("Could not play the focus-to-break bell.", error);
+        });
+    }
+}
+
+function stopTransitionBell() {
+    transitionBellRequest += 1;
+    if (!audioContext) {
+        return;
+    }
+
+    const now = audioContext.currentTime;
+    transitionBellTones.forEach((gain, oscillator) => {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(Math.max(gain.gain.value, 0.0001), now);
+        gain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
+        oscillator.stop(now + 0.05);
+    });
+    transitionBellTones.clear();
 }
 
 sessionPreset.addEventListener("click", () => {
@@ -408,6 +488,7 @@ function updateCountdown() {
             remainingMilliseconds = BREAK_WARNING_DURATION;
             phaseLabel.textContent = "Break starts in";
             renderTime();
+            playTransitionBell();
             startCountdown();
         } else if (currentPhase === "break-warning") {
             currentPhase = "break";
@@ -415,10 +496,19 @@ function updateCountdown() {
             phaseLabel.textContent = "Break time";
             renderTime();
             startCountdown();
+        } else if (currentPhase === "break") {
+            currentPhase = "study-warning";
+            remainingMilliseconds = BREAK_WARNING_DURATION;
+            phaseLabel.textContent = "Study starts in";
+            renderTime();
+            playTransitionBell();
+            startCountdown();
         } else {
-            currentPhase = "complete";
-            phaseLabel.textContent = "Break complete";
-            pauseButton.disabled = true;
+            currentPhase = "study";
+            remainingMilliseconds = studyDuration;
+            phaseLabel.textContent = "Study time";
+            renderTime();
+            startCountdown();
         }
     }
 }
@@ -436,6 +526,13 @@ function startCountdown() {
 }
 
 startButton.addEventListener("click", () => {
+    try {
+        initializeAmbientAudio().catch((error) => {
+            console.error("Could not initialize audio for the focus-to-break bell.", error);
+        });
+    } catch (error) {
+        console.error("Could not initialize audio for the focus-to-break bell.", error);
+    }
     readPreset();
     currentPhase = "study";
     remainingMilliseconds = studyDuration;
@@ -450,15 +547,20 @@ pauseButton.addEventListener("click", () => {
     if (intervalId !== null) {
         updateCountdown();
         stopCountdown();
+        stopTransitionBell();
         pauseButton.textContent = "Resume";
         return;
     }
 
+    if (currentPhase === "break-warning" || currentPhase === "study-warning") {
+        playTransitionBell(remainingMilliseconds);
+    }
     startCountdown();
 });
 
 resetButton.addEventListener("click", () => {
     stopCountdown();
+    stopTransitionBell();
     readPreset();
     currentPhase = "study";
     remainingMilliseconds = studyDuration;

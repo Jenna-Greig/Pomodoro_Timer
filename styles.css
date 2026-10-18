@@ -30,10 +30,20 @@ body.imported-image-wallpaper {
 h1 {
     display: grid;
     gap: 0.08em;
-    color: #fff;
+    color: transparent;
     text-align: left;
     margin: 0;
-    opacity: 0.65;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 0.68) 35%,
+        rgba(255, 255, 255, 0.48) 65%,
+        rgba(255, 255, 255, 0.92)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.35);
+    text-shadow: 0 8px 28px rgba(255, 255, 255, 0.12);
     font-size: clamp(3.5rem, 8vw, 7rem);
     line-height: 0.95;
     letter-spacing: -0.04em;
@@ -44,24 +54,6 @@ header {
     max-width: 100%;
     justify-self: center;
     margin: 0;
-    padding: clamp(1.5rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
-    border: 0.75px solid transparent;
-    border-radius: 1rem;
-    background:
-        linear-gradient(rgba(255, 255, 255, 0.389), rgba(255, 255, 255, 0.389)) padding-box,
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.9),
-            rgba(255, 255, 255, 0.2) 30%,
-            rgba(255, 255, 255, 0.08) 65%,
-            rgba(255, 255, 255, 0.65)
-        ) border-box;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     mix-blend-mode: difference;
 }
 
@@ -73,7 +65,7 @@ main {
     color: #fff;
     text-align: center;
     font-size: 1.2rem;
-    opacity: 0.8;
+    opacity: 1;
     mix-blend-mode: difference;
 }
 
@@ -306,6 +298,8 @@ main {
 .wallpaper-option {
     position: relative;
     display: grid;
+    min-width: 0;
+    overflow: hidden;
     gap: 0.65rem;
     padding: 0.65rem;
     border: 1px solid transparent;
@@ -370,6 +364,8 @@ main {
 .wallpaper-preview {
     display: block;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     aspect-ratio: 16 / 9;
     border-radius: 0.5rem;
 }
@@ -487,6 +483,16 @@ button {
     font: inherit;
     font-size: 1.15rem;
     cursor: pointer;
+}
+
+#startButton,
+.timer-actions button {
+    color: #fff;
+    padding: 0.55rem 1rem;
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    -webkit-text-stroke: 0;
 }
 
 button:disabled {
